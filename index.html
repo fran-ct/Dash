@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    #filtros {
+        background: #f0f0f0;
+        padding: 10px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    #contenedor {
+        flex: 1;
+        display: flex;
+        overflow: hidden;
+    }
+    #pestanas {
+        width: 150px;
+        background: #e0e0e0;
+        padding: 10px;
+        overflow-y: auto;
+    }
+    #lista {
+        width: 200px;
+        border-left: 1px solid #ccc;
+        padding: 10px;
+        overflow-y: auto;
+    }
+    #panel {
+        flex: 1;
+        border-left: 1px solid #ccc;
+        padding: 10px;
+        overflow-y: auto;
+    }
+    button.tab {
+        display: block;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+</style>
+</head>
+<body>
+<div id="filtros">
+    <label for="proyecto">Proyecto:</label>
+    <select id="proyecto">
+        <option value="Todos">Todos</option>
+        <option value="Proyecto A">Proyecto A</option>
+        <option value="Proyecto B">Proyecto B</option>
+    </select>
+
+    <label for="fecha">Fecha:</label>
+    <input type="date" id="fecha">
+</div>
+<div id="contenedor">
+    <div id="pestanas"></div>
+    <div id="lista"></div>
+    <div id="panel"></div>
+</div>
+<script>
+const datos = {
+    'Sprints': [
+        { nombre: 'Sprint 1', puntos: 30, horas: 160 },
+        { nombre: 'Sprint 2', puntos: 40, horas: 180 },
+        { nombre: 'Sprint 3', puntos: 35, horas: 170 }
+    ],
+    'Personas': [
+        { nombre: 'Alice', puntos: 50, horas: 200 },
+        { nombre: 'Bob', puntos: 45, horas: 180 },
+        { nombre: 'Carol', puntos: 38, horas: 160 }
+    ],
+    'Clientes': [
+        { nombre: 'Acme', unidades: 5, horas: 800 },
+        { nombre: 'Beta Corp', unidades: 3, horas: 480 }
+    ]
+};
+
+const pestanas = document.getElementById('pestanas');
+const lista = document.getElementById('lista');
+const panel = document.getElementById('panel');
+let actual = null;
+let seleccionados = [];
+
+function crearPestanas() {
+    Object.keys(datos).forEach(cat => {
+        const btn = document.createElement('button');
+        btn.textContent = cat;
+        btn.className = 'tab';
+        btn.onclick = () => {
+            actual = cat;
+            seleccionados = [];
+            mostrarLista(cat);
+            panel.innerHTML = '<em>Seleccione uno o más elementos</em>';
+        };
+        pestanas.appendChild(btn);
+    });
+}
+
+function mostrarLista(cat) {
+    lista.innerHTML = '';
+    datos[cat].forEach((item, idx) => {
+        const label = document.createElement('label');
+        label.style.display = 'block';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = idx;
+        cb.onchange = actualizarPanel;
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(' ' + item.nombre));
+        lista.appendChild(label);
+    });
+}
+
+function actualizarPanel() {
+    seleccionados = Array.from(lista.querySelectorAll('input:checked')).map(cb => datos[actual][cb.value]);
+    if (seleccionados.length === 0) {
+        panel.innerHTML = '<em>Seleccione uno o más elementos</em>';
+    } else if (seleccionados.length === 1) {
+        const item = seleccionados[0];
+        panel.innerHTML = `<h2>${item.nombre}</h2>` +
+            Object.keys(item).filter(k => k !== 'nombre').map(k => `<p><strong>${k}:</strong> ${item[k]}</p>`).join('');
+    } else {
+        const cabecera = Object.keys(seleccionados[0]).filter(k => k !== 'nombre');
+        let tabla = '<table border="1"><tr><th>Elemento</th>' + cabecera.map(h => `<th>${h}</th>`).join('') + '</tr>';
+        seleccionados.forEach(item => {
+            tabla += '<tr><td>' + item.nombre + '</td>' +
+                cabecera.map(h => `<td>${item[h]}</td>`).join('') + '</tr>';
+        });
+        tabla += '</table>';
+        panel.innerHTML = tabla;
+    }
+}
+
+crearPestanas();
+panel.innerHTML = '<em>Seleccione una pestaña y luego elementos</em>';
+</script>
+</body>
+</html>
