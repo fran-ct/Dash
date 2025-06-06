@@ -1,1 +1,12 @@
-nothing yet
+# Dashboard Demo
+
+Este repositorio contiene un ejemplo simple de dashboard en HTML.
+
+Abra `index.html` en su navegador para ver una maquetación básica con:
+
+- Barra horizontal de filtros.
+- Barra vertical de pestañas (categorías).
+- Panel central de selección de elementos.
+- Panel de visualización a la derecha.
+
+La lógica está implementada con JavaScript y utiliza datos de ejemplo.
